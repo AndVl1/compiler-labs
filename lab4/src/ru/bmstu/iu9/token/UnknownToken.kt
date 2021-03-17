@@ -7,4 +7,9 @@ class UnknownToken(
     tag: Tag,
     start: Position,
     end: Position,
-) : Token(tag, start, end)
+    val value: String,
+) : Token(tag, start, end) {
+    override fun toString(): String {
+        return "UNRECOGNIZED ${super.coordinates}: $value"
+    }
+}

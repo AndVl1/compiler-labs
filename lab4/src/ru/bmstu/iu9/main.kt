@@ -20,10 +20,14 @@ fun main(args: Array<String>) {
             break
         } else {
             print("${tok.tag} ${tok.coordinates}: ${when (tok) {
-                is IdentToken -> tok
-                is KeywordToken -> tok
-                else -> tok as NumberToken
+                is IdentToken -> tok.value
+                is KeywordToken -> tok.value
+                else -> (tok as NumberToken).value
             }}\n")
         }
+    }
+    if (parser.messages.isNotEmpty()) {
+        println("errors:")
+        parser.getErrorMessages()
     }
 }

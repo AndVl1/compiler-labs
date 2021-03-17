@@ -18,21 +18,22 @@ class Scanner(
                 else -> readWord(currentToken)
             }
             if (token.tag == Tag.UNKNOWN) {
-                parser.addMessage(Message("Unrecognized token", currentToken))
-                currentToken = currentToken.next()
+//                parser.addMessage(Message("Unrecognized token", currentToken))
+                currentToken = token.coordinates.end
             } else {
                 currentToken = token.coordinates.end
                 return token
             }
         }
-        return UnknownToken(Tag.END_OF_PROGRAM, currentToken, currentToken)
+        return UnknownToken(Tag.END_OF_PROGRAM, currentToken, currentToken, value = "")
     }
 
     private fun readNumber(position: Position): Token {
+        var isError = false
         var p = position.next()
         val number = StringBuilder()
         number.append(position.code.toChar())
-        while (!p.isEOF) {
+        while (!p.isEOF && !p.isWhitespace) {
             if (p.code.toChar().isDigit() ||
                 (p.code.toChar().toUpperCase() =='A') ||
                 (p.code.toChar().toUpperCase() =='B') ||
@@ -43,37 +44,75 @@ class Scanner(
                 number.append(p.code.toChar())
             } else {
                 parser.addMessage(Message("Not a hex number", p))
-                return UnknownToken(Tag.UNKNOWN, position, p)
+                number.append(p.code.toChar())
+                isError = true
             }
             p = p.next()
         }
-        return NumberToken(number.toString(), p, position)
+        return if (!isError) {
+            NumberToken(
+                value = number.toString(),
+                start = position,
+                end = p,
+            )
+        } else {
+            UnknownToken(
+                Tag.UNKNOWN,
+                start = position,
+                end = p,
+                value = number.toString()
+            )
+        }
     }
 
     private fun readWord(position: Position): Token {
         var p = position.next()
-        val first = p
+        val first = position
         var last = p
         val word = StringBuilder()
         word.append(position.code.toChar())
         while (!p.isEOF) {
-            if (p.code == '\n'.toInt() || p.code == '\r'.toInt() || p.code == ' '.toInt()) {
-                return if (first != last) {
+            if (p.isNewLine || p.isWhitespace) {
+                return if (word.first() != word.last()) {
                     parser.addMessage(Message("Should start with same letter", p))
-                    UnknownToken(Tag.UNKNOWN, position, p)
+                    UnknownToken(
+                        tag = Tag.UNKNOWN,
+                        start = position,
+                        end = p,
+                        value = word.toString()
+                    )
                 } else when (word.toString()) {
-                    "qeq", "xx", "xxx" -> KeywordToken(word.toString(), position, p)
-                    else -> IdentToken(word.toString(), position, p)
+                    "qeq", "xx", "xxx" -> KeywordToken(
+                        value = word.toString(),
+                        start = position,
+                        end = p,
+                    )
+                    else -> IdentToken(
+                        value = word.toString(),
+                        start = position,
+                        end = p,
+                    )
                 }
             }
             last = p
             word.append(p.code.toChar())
             p = p.next()
         }
-        return if (first != last) {
-            UnknownToken(Tag.UNKNOWN, position, p)
-        } else when (word.toString()) {
-            "qeq", "xx", "xxx" -> KeywordToken(word.toString(), position, p)
+        return if(word.first() != word.last()){
+            parser.addMessage(Message("Should start with same letter", p))
+            UnknownToken(
+                tag = Tag.UNKNOWN,
+                start = position,
+                end = p,
+                value = word.toString()
+            )
+        } else
+            when (word.toString()) {
+            "qeq", "xx", "xxx" -> KeywordToken(
+                value = word.toString(),
+                start = position,
+                end = p
+            )
             else -> IdentToken(word.toString(), position, p)
         }
     }

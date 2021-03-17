@@ -35,7 +35,7 @@ class Position {
     }
 
     override fun toString(): String {
-        return "($line ,$pos)"
+        return "($line, $pos)"
     }
 
     val isEOF: Boolean
@@ -73,4 +73,28 @@ class Position {
         }
         return p
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Position
+
+        if (text != other.text) return false
+        if (line != other.line) return false
+        if (pos != other.pos) return false
+        if (index != other.index) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = text.hashCode()
+        result = 31 * result + line
+        result = 31 * result + pos
+        result = 31 * result + index
+        return result
+    }
+
+
 }

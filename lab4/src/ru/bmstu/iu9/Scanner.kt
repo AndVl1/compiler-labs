@@ -13,8 +13,9 @@ class Scanner(
             while (currentToken.isWhitespace) {
                 currentToken = currentToken.next()
             }
-            val token = when(currentToken.code) {
-                '0'.toInt() -> readNumber(currentToken)
+
+            val token = when {
+                currentToken.code <= '9'.toInt() -> readNumber(currentToken)
                 else -> readWord(currentToken)
             }
             if (token.tag == Tag.UNKNOWN) {

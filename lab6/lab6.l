@@ -34,7 +34,8 @@ void print_frag(Fragment* f) {
 
 union Token {
 	char *str_literal;
-    char *num_literal;
+    // char *num_literal;
+	double num_literal;
     char *ident;
 };
 
@@ -59,7 +60,7 @@ struct Position cur;
     yylloc->following = cur;         \
 } 
 
-long size_comment;
+long length;
 
 void init_scanner (char *program){
     continued = 0;
@@ -76,54 +77,48 @@ void err (char *msg){
 }
 %}
 
-NUMERICAL_LITERAL \-?([0-9]+(\.[0-9]+)?)
+NUMERICAL_LITERAL -?([0-9]+(\.[0-9]+)?)
 IDENT [a-zA-Z][a-zA-Z0-9.]*
 
 %x STRING
 
 %%
 [\n\t ]+
-\’          	  	{
+\'          	  	{
 						 BEGIN(STRING); 
 						 continued = 1; 
-						 size_comment = 2;
-						 yylval->str_literal=(char*)malloc(size_comment*sizeof(char));
-						 strcpy(yylval->str_literal,"’");
+						 length = 2;
+						 yylval->str_literal=(char*)malloc(length*sizeof(char));
+						 strcpy(yylval->str_literal,"");
 					  }
-<STRING>[^\\\’]{2}      { 
+<STRING>[^\n']*      { 
 						 continued = 1;
-						 size_comment += yyleng;
-						 yylval->str_literal=(char*)realloc(yylval->str_literal,size_comment*sizeof(char));
+						 length += yyleng;
+						 yylval->str_literal=(char*)realloc(yylval->str_literal,length*sizeof(char));
 						 strcat(yylval->str_literal,yytext);
 					  }
-<STRING>\\\n          {
+<STRING>\'\'	      {
 						 continued = 1;
-						 size_comment += 2;	
-						 yylval->str_literal=(char*)realloc(yylval->str_literal,size_comment*sizeof(char));
-						 strcat(yylval->str_literal,"\\\n");
-					  }у
-<STRING>\’\’	      {
-						 continued = 1;
-						 size_comment += 2;	
-						 yylval->str_literal=(char*)realloc(yylval->str_literal,size_comment*sizeof(char));
-						 strcat(yylval->str_literal,"’’");
+						 length += 2;	
+						 yylval->str_literal=(char*)realloc(yylval->str_literal,length*sizeof(char));
+						 strcat(yylval->str_literal,"'");
 					  }
-<STRING>\’		      { 
-						 size_comment += 1;
-						 yylval->str_literal=(char*)realloc(yylval->str_literal,size_comment*sizeof(char));
-						 strcat(yylval->str_literal,"’");
+<STRING>\'		      { 
+						 length += 1;
+						 yylval->str_literal=(char*)realloc(yylval->str_literal,length*sizeof(char));
+						 strcat(yylval->str_literal,"");
 						 BEGIN(0);
 						 return TAG_STRING_LITERAL; 
 					  }
 <STRING><<EOF>>       {
-						 err("end of program found, ’ expected");
+						 err("end of program found, ' expected");
 						 return 0;
                       }
 {NUMERICAL_LITERAL}   {
-                         yylval->num_literal = yytext;
+                        //  yylval->num_literal = yytext;
+						yylval->num_literal = atof(yytext);
                          return TAG_NUMERICAL_LITERAL;
                       }
-                      
 {IDENT}               {
                          yylval->ident = yytext;
                          return TAG_IDENT;
@@ -172,9 +167,13 @@ int main(){
         if (tag != 0){
            printf("%s ",tag_names[tag]);
            print_frag(&coords);
-           printf(":\n%s\n", value.ident); 
-           if (tag == 1)
-				free(value.str_literal);   
+		   if (tag == 2) {
+			   printf(":\n%f\n", value.num_literal);
+		   } else {
+           		printf(":\n%s\n", value.ident); 
+           		if (tag == 1)
+					free(value.str_literal);   
+		   }
         }
     }
     while (tag != 0); 

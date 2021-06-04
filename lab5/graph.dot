@@ -1,0 +1,66 @@
+// def val var
+// ' string '' '
+
+digraph g {
+    rankdir=LR;
+    size="7.7"
+
+    // StartState -> Whitespace [label = "[\\s\\r]"]
+    StartState -> OpeningParen [label = "["]
+    StartState -> ClosingParen [label = "]"]
+    StartState -> IdentD [label = "d"]
+    StartState -> Ident [label = "[a-zA-Z[^dv]]"]
+    StartState -> IdentV [label = "v"]
+    StartState -> String [label = "'"]
+    StartState -> NumLiteral [label = "[0-9]"]
+
+    StartState -> StartState [label = "\\n"]
+
+    // Whitespace -> Whitespace [label = "[\\s\\r]"]
+    //OpeningParen -> Keyword [label = "."]
+    //ClosingParen -> Keyword [label = "."]
+
+
+    IdentV -> IdentA [label = "a"]
+    IdentV -> Ident [label = "[a-zA-Z0-9[^a]]"]
+    IdentA -> Keyword [label = "rl"]
+    IdentA -> Ident [label = "[a-zA-Z0-9[^rl]]"]
+    //IdentA -> Keyword [label = "l"]
+    // IdentR -> Ident [label = "[a-zA-Z0-9]"]
+    //IdentR -> Keyword
+    // IdentL -> Ident [label = "[a-zA-Z0-9]"]
+    //IdentL -> Keyword
+    IdentD -> IdentE [label = "e"]
+    IdentD -> Ident [label = "[a-zA-Z0-9[^e]]"]
+    IdentE -> Keyword [label = "f"]
+    IdentE -> Ident [label = "[a-zA-Z0-9[^f]]"]
+    //IdentF -> Keyword
+    // IdentF -> Ident [label = "[a-zA-Z0-9]"]
+    Ident -> Ident [label = "[a-zA-Z0-9]"]
+    String -> String [label = "[^\\n]"]
+    String -> StringLiteral [label = "'"]
+    StringLiteral -> String [label = "'"]
+    NumLiteral -> NumLiteral [label = "[0-9]"]
+    // NumLiteral -> Error [label = "[a-zA-Z]"]
+    Keyword -> Ident [label = "[a-zA-Z0-9]"]
+
+    StartState [shape = circle, label = "StartState (0)"]
+    // Whitespace [shape = circle, peripheries = 2, label = "Whitespace (1)"]
+    OpeningParen [shape = circle, peripheries = 2, label = "OpeningParen (1)"]
+    ClosingParen [shape = circle, peripheries = 2, label = "ClosingParen (2)"]
+    StringLiteral [shape = circle, peripheries = 2, label = "StringLiteral (3)"]
+    Ident [shape = circle, peripheries = 2, label = "Ident (4)"]
+    String [shape = circle, label = "String (5)"]
+    // def, val, var
+    IdentD [shape = circle, peripheries = 2, label = "IdentD (6)"] // d
+    IdentE [shape = circle, peripheries = 2, label = "IdentE (7)"] // e
+    Keyword [shape = circle, peripheries = 2, label = "Keyword (8)"]
+
+    // IdentF [shape = circle, peripheries = 2, label = "IdentF (10)"] // f
+    IdentV [shape = circle, peripheries = 2, label = "IdentV (9)"] // v
+    IdentA [shape = circle, peripheries = 2, label = "IdentA (10)"] // a
+
+    // IdentR [shape = circle, peripheries = 2, label = "IdentR (13)"] // r
+    // IdentL [shape = circle, peripheries = 2, label = "IdentL (14)"] // l
+    NumLiteral [shape = circle, peripheries = 2, label = "Integer (11)"] // \d
+}

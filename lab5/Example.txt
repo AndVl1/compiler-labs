@@ -1,0 +1,5 @@
+def a b c 133
+k var val
+var [ val ] dee def 'abs ''  2 3' []
+k var ' a
+val ' b

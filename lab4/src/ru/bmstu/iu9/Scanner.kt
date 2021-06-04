@@ -15,7 +15,7 @@ class Scanner(
             }
 
             val token = when {
-                currentToken.code <= '9'.toInt() -> readNumber(currentToken)
+                currentToken.code <= '9'.code -> readNumber(currentToken)
                 else -> readWord(currentToken)
             }
             if (token.tag == Tag.UNKNOWN) {
@@ -36,12 +36,12 @@ class Scanner(
         number.append(position.code.toChar())
         while (!p.isEOF && !p.isWhitespace) {
             if (p.code.toChar().isDigit() ||
-                (p.code.toChar().toUpperCase() =='A') ||
-                (p.code.toChar().toUpperCase() =='B') ||
-                (p.code.toChar().toUpperCase() =='C') ||
-                (p.code.toChar().toUpperCase() =='D') ||
-                (p.code.toChar().toUpperCase() =='E') ||
-                (p.code.toChar().toUpperCase() =='F')) {
+                (p.code.toChar().uppercaseChar() == 'A') ||
+                (p.code.toChar().uppercaseChar() == 'B') ||
+                (p.code.toChar().uppercaseChar() == 'C') ||
+                (p.code.toChar().uppercaseChar() == 'D') ||
+                (p.code.toChar().uppercaseChar() == 'E') ||
+                (p.code.toChar().uppercaseChar() == 'F')) {
                 number.append(p.code.toChar())
             } else {
                 parser.addMessage(Message("Not a hex number", p))
